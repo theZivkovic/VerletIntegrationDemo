@@ -2,17 +2,27 @@ import  { Vector3 ,SphereGeometry, MeshBasicMaterial, Mesh} from 'three';
 
 export class SpecialPoint {
 
-	constructor(startingPosition) {
-		var geometry = new SphereGeometry( 1, 32, 32 );
+	constructor(startingPosition, id) {
+		var geometry = new SphereGeometry( 2, 32, 32 );
 		var material = new MeshBasicMaterial( {color: 0xff8010} );
 		this._mesh = new Mesh( geometry, material );
+		this._mesh.name = "SpecialPoint_" + id
 		this._mesh.position.set(startingPosition.x, startingPosition.y, startingPosition.z);
 		this._prevPosition = startingPosition.clone();
+		this._pinned = false;
+	}
+
+	setPinned(pinned){
+		this._pinned = pinned;
+	}
+
+	isPinned(){
+		return this._pinned;
 	}
 
 	setVelocity(vel){
-		this.position = vel;
-		this.prevPosition = this.position.clone().sub(vel);
+		this.prevPosition = this.position;
+		this.position.add(vel);
 	}
 
 	setRandomVelocity(){
