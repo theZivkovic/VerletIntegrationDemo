@@ -1,6 +1,6 @@
 'use strict';
 
-import {Vector3, Vector2, Scene, CubeGeometry, Mesh,MeshBasicMaterial, PerspectiveCamera, WebGLRenderer, BoxHelper, Raycaster} from 'three';
+import {Vector3, Vector2, Scene, CubeGeometry, Mesh,MeshBasicMaterial, PerspectiveCamera, WebGLRenderer, Raycaster } from 'three';
 import { SpecialPoint } from './SpecialPoint';
 import { Stick } from './Stick';
 
@@ -134,11 +134,11 @@ function constrainPoints(){
 	}
 }
 
-let mouseDownSpecialPoint = null;
-let mouseDownPosition = null;
-let mouseDown2D = null;
-
 function setupMouseListeners() {
+
+	let mouseDownSpecialPoint = null;
+	let mouseDownPosition = null;
+	let mouseDown2D = null;
 
 	renderer.domElement.addEventListener('mousedown', (event) => {
 
