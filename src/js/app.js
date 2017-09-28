@@ -79,7 +79,7 @@ function setupSticks(){
 	}
 }
 
-function updatePoints() {
+function updateSpecialPoints() {
 
 	for (var i = 0 ; i < specialPoints.length; i++){
 		let point = specialPoints[i];
@@ -104,7 +104,7 @@ function updateSticks(){
 	}
 }
 
-function constrainPoints(){
+function constraintSpecialPoints(){
 
 	for (let i = 0; i < specialPoints.length; i++){
 
@@ -182,7 +182,6 @@ function setupMouseListeners() {
 		mouseMove2D.y = -(event.clientY / window.innerHeight) * 2 + 1;
 		let delta = mouseMove2D.clone().sub(mouseDown2D);
 
-
 		mouseDownSpecialPoint.prevPosition = mouseDownSpecialPoint.position;
 		mouseDownSpecialPoint.position.add(new Vector3(delta.x, delta.y, 0.0));
 	});
@@ -192,18 +191,17 @@ function setupMouseListeners() {
 	});
 }
 
-function render() {
-
-	time += 0.01;
+function render() { 
 
 	requestAnimationFrame(render);
 	for (var i = 0; i < 3; i++){
-		updatePoints();
+		updateSpecialPoints();
 		updateSticks();
 	}
 	
-	constrainPoints();
+	constraintSpecialPoints();
 	renderer.render(scene, camera);
+	time += 0.01;
 }
 
 
