@@ -4,75 +4,85 @@ import {Vector3, Vector2, Scene, CubeGeometry, Mesh,MeshBasicMaterial, Perspecti
 import { SpecialPoint } from './SpecialPoint';
 import { Stick } from './Stick';
 
-let time = 0.0;
-
-const scene = new Scene();
-const camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const raycaster = new Raycaster();
-
-const renderer = new WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
-
 const CUBE_SIZE = 100;
 const BUMP_ENERGY_LOSS = 0.7;
+const N = 11;
+const OFFSET = 10;
 
-var cube = new Mesh( 
+let scene, camera, raycaster, renderer, time;
+let specialPoints, pointMeshes, sticks;
+
+function setupScene() {
+	time = 0.0;
+	scene = new Scene();
+	camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+	camera.position.z = 140;
+	raycaster = new Raycaster();
+	renderer = new WebGLRenderer({ antialias: true });
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	document.body.appendChild(renderer.domElement);
+
+	setupBoundingCube();
+	setupSpecialPoints();
+	setupSticks();
+}
+
+function setupBoundingCube(){
+	var cube = new Mesh( 
     new CubeGeometry( CUBE_SIZE, CUBE_SIZE, CUBE_SIZE ), 
     new MeshBasicMaterial( {
         color: 0xff8010,
         wireframe: true
-    } )
-);
-cube.name = "Cube";
-cube.pickable = false;
+    })
+	);
+	cube.name = "Cube";
+	cube.pickable = false;
+	scene.add(cube);
+}
 
-scene.add(cube);
+function setupSpecialPoints() {
+	specialPoints = new Array(N * N);
+	pointMeshes = new Array(N * N);
+	
 
-
-const N = 11;
-const OFFSET = 10;
-
-let points = new Array(N * N);
-let pointMeshes = new Array(N * N);
-let lines = new Array();
-
-for (let i = 0; i < N; i++){
-	for (let j = 0; j < N; j++){
-		let specialPoint = new SpecialPoint(new Vector3((i - N / 2) * OFFSET, (j - N / 2) * OFFSET, 0.0), i * N + j);
-		if (j == N-1)
-			specialPoint.setPinned(true);
-		if (j != N-1)
-			specialPoint.setRandomVelocity();
-		points[i * N + j] = specialPoint;
-		pointMeshes[i * N + j] = specialPoint.mesh;
-		scene.add(specialPoint.mesh);
+	for (let i = 0; i < N; i++){
+		for (let j = 0; j < N; j++){
+			let specialPoint = new SpecialPoint(new Vector3((i - N / 2) * OFFSET, (j - N / 2) * OFFSET, 0.0), i * N + j);
+			if (j == N-1)
+				specialPoint.setPinned(true);
+			if (j != N-1)
+				specialPoint.setRandomVelocity();
+			specialPoints[i * N + j] = specialPoint;
+			pointMeshes[i * N + j] = specialPoint.mesh;
+			scene.add(specialPoint.mesh);
+		}
 	}
 }
-console.log(points);
 
-for (let i = 0; i < N; i++){
-	for (let j = 0; j < N; j++){
+function setupSticks(){
+	sticks = new Array();
+	for (let i = 0; i < N; i++){
+		for (let j = 0; j < N; j++){
 
-		if (i < N - 1) {
-			let stickDown = new Stick(points[i * N + j], points[(i+1) * N + j]);
-			scene.add(stickDown.mesh);
-			lines.push(stickDown);
-			
-		}
- 
-		if (j < N - 1){
-			let stickRight =  new Stick(points[i * N + j + 1], points[i * N + j]);
-			scene.add(stickRight.mesh);
-			lines.push(stickRight);	
+			if (i < N - 1) {
+				let stickDown = new Stick(specialPoints[i * N + j], specialPoints[(i+1) * N + j]);
+				scene.add(stickDown.mesh);
+				sticks.push(stickDown);
+			}
+	 
+			if (j < N - 1){
+				let stickRight =  new Stick(specialPoints[i * N + j + 1], specialPoints[i * N + j]);
+				scene.add(stickRight.mesh);
+				sticks.push(stickRight);	
+			}
 		}
 	}
 }
 
 function updatePoints() {
 
-	for (var i = 0 ; i < points.length; i++){
-		let point = points[i];
+	for (var i = 0 ; i < specialPoints.length; i++){
+		let point = specialPoints[i];
 
 		if (point.isPinned())
 			continue;
@@ -89,16 +99,16 @@ function updatePoints() {
 }
 
 function updateSticks(){
-	for (var i = 0; i < lines.length; i++){
-		lines[i].update();
+	for (var i = 0; i < sticks.length; i++){
+		sticks[i].update();
 	}
 }
 
 function constrainPoints(){
 
-	for (let i = 0; i < points.length; i++){
+	for (let i = 0; i < specialPoints.length; i++){
 
-		let point = points[i];
+		let point = specialPoints[i];
 		
 		if (point.isPinned())
 			continue;
@@ -153,7 +163,7 @@ function setupMouseListeners() {
 
 		if (foundObject){
 
-			mouseDownSpecialPoint = points.find(point => {
+			mouseDownSpecialPoint = specialPoints.find(point => {
 				return point.mesh.name == foundObject.object.name;
 			});
 
@@ -197,6 +207,7 @@ function render() {
 }
 
 
-camera.position.z = 140;
+
+setupScene();
 setupMouseListeners();
 render();

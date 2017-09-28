@@ -49,4 +49,10 @@ export class SpecialPoint {
 		this._prevPosition.set(value.x, value.y, value.z);
 	}
 
+	setNewValue(newPosition){
+		this._prevPosition.set(this.position.x, this.position.y, this.position.z);
+		this.mesh.position.set(newPosition.x, newPosition.y, newPosition.z);
+
+	}
+
 }
